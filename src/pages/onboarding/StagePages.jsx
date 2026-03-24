@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../../hooks/useAuth'
-import { supabase, getCoachingResponse } from '../../../lib/supabase'
-import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../../../components/UI'
+import { useAuth } from '../../hooks/useAuth'
+import { supabase, getCoachingResponse } from '../../lib/supabase'
+import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../../components/UI'
 
 const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Areas']
 
