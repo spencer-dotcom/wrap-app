@@ -14,7 +14,7 @@ The WRAP App is a life management system built on Spencer Combs' Drift to Drive 
 
 ---
 
-## Step 1 — Set Up Supabase
+## Step 01 — Set Up Supabase
 
 1. Go to [supabase.com](https://supabase.com) and create a free account
 2. Create a new project (name it "wrap-app" or similar)
