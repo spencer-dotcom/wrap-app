@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
-import { Button, Input, Textarea, StepIndicator, WrapLogo } from '../../components/UI'
+import { Button, Textarea, StepIndicator, WrapLogo } from '../../components/UI'
 
 const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Areas']
 
@@ -21,7 +21,7 @@ export function AnchorGoalPage() {
   const [timeline, setTimeline]         = useState('3')
   const [saving, setSaving]             = useState(false)
 
-  const { user, updateProfile } = useAuth()
+  const { updateProfile } = useAuth()
   const navigate = useNavigate()
 
   async function handleContinue() {
