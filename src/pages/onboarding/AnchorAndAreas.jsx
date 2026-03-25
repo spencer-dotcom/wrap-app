@@ -4,12 +4,12 @@ import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
 import { Button, Textarea, StepIndicator, WrapLogo } from '../../components/UI'
 
-const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Areas']
+const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Arenas']
 
 const DEFAULT_LIFE_AREAS = [
   { name: 'Spiritual / Purpose', icon: '🙏', selected: true },
-  { name: 'Relationships',       icon: '❤️', selected: true },
   { name: 'Health',              icon: '💪', selected: true },
+  { name: 'Relationships',       icon: '❤️', selected: true },
   { name: 'Career / Value',      icon: '🎯', selected: true },
   { name: 'Financial',           icon: '💰', selected: true },
   { name: 'Overflow / Lifestyle',icon: '✨', selected: true },
@@ -121,7 +121,7 @@ export function AnchorGoalPage() {
             loading={saving}
             onClick={handleContinue}
           >
-            Set My Life Areas →
+            Set My Life Arenas →
           </Button>
           <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             You can refine this anytime. Start with your best current thinking.
@@ -134,7 +134,7 @@ export function AnchorGoalPage() {
   )
 }
 
-/* ─── Life Areas Setup ──────────────────────────────────────────── */
+/* ─── Life Arenas Setup ──────────────────────────────────────────── */
 export function LifeAreasSetupPage() {
   const [areas, setAreas]     = useState(DEFAULT_LIFE_AREAS)
   const [custom, setCustom]   = useState('')
@@ -204,7 +204,7 @@ export function LifeAreasSetupPage() {
             Final step
           </p>
           <h1 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', marginBottom: 'var(--space-md)' }}>
-            Your Life Areas
+            Your Life Arenas
           </h1>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
             These are the 5–9 domains your WRAP system will track. Everything you do weekly connects back to one of these. Choose what matters most to you right now.
