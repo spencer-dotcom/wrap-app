@@ -27,7 +27,10 @@ export default function AnnualOutcomesPage() {
   const navigate = useNavigate()
   const year = new Date().getFullYear()
 
-  useEffect(() => { if (user) fetchData() }, [user])
+  useEffect(() => {
+    if (user) fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   async function fetchData() {
     const { data: areas } = await supabase
