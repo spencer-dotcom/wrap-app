@@ -126,7 +126,7 @@ export default function AnnualOutcomesPage() {
           display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)',
         }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
-            Life Areas
+            Life Arenas
           </p>
           {lifeAreas.map(area => {
             const count = outcomes[area.id]?.length || 0
