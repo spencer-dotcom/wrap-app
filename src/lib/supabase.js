@@ -1,28 +1,28 @@
 import { createClient } from '@supabase/supabase-js'
 
-// These values come from your Supabase project settings
-// In production, use environment variables:
-// REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'YOUR_SUPABASE_URL'
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Claude API helper for AI coaching moments
+// Claude API helper - routes through Supabase Edge Function proxy
+// so the Anthropic API key is never exposed in the browser
 export async function getCoachingResponse(systemPrompt, userMessage, conversationHistory = []) {
   const messages = [
     ...conversationHistory,
     { role: 'user', content: userMessage }
   ]
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch(`${supabaseUrl}/functions/v1/claude-proxy`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${supabaseAnonKey}`,
+    },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
       system: systemPrompt,
-      messages
+      messages,
+      max_tokens: 1000,
     })
   })
 
