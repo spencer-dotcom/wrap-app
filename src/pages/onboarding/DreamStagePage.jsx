@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { supabase, getCoachingResponse } from '../../lib/supabase'
 import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../../components/UI'
 
-const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Areas']
+const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Arenas']
 
 const DREAM_SYSTEM_PROMPT = `You are Spencer Combs, author of Momentum & Mastery and creator of the WRAP life management system. You are guiding a new user through the Dream stage of the Drift to Drive framework.
 
@@ -405,3 +405,4 @@ export default function DreamStagePage() {
     </div>
   )
 }
+
