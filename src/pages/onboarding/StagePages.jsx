@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { supabase, getCoachingResponse } from '../../lib/supabase'
 import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../../components/UI'
 
-const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Areas']
+const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Arenas']
 
 /* ─── Stage Config ─────────────────────────────────────────────────── */
 const STAGES = {
@@ -291,4 +291,3 @@ export default function StageComponent({ stage }) {
 export function DesireStagePage() { return <StageComponent stage="desire" /> }
 export function DisturbanceStagePage() { return <StageComponent stage="disturbance" /> }
 export function DecisionStagePage() { return <StageComponent stage="decision" /> }
-
