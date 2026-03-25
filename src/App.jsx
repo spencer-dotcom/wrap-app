@@ -7,6 +7,10 @@ import './styles/globals.css'
 import AuthPage from './pages/AuthPage'
 import EntryRoutingPage from './pages/EntryRoutingPage'
 import DashboardPage from './pages/DashboardPage'
+import AnnualOutcomesPage from './pages/AnnualOutcomesPage'
+import MonthlyPlanPage from './pages/MonthlyPlanPage'
+import WeeklyWrapPage from './pages/WeeklyWrapPage'
+import DesireListPage from './pages/DesireListPage'
 
 // Onboarding pages
 import DreamStagePage from './pages/onboarding/DreamStagePage'
@@ -80,6 +84,10 @@ function AppRoutes() {
 
       {/* Protected app */}
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/annual"    element={<ProtectedRoute><AnnualOutcomesPage /></ProtectedRoute>} />
+      <Route path="/monthly"   element={<ProtectedRoute><MonthlyPlanPage /></ProtectedRoute>} />
+      <Route path="/weekly"    element={<ProtectedRoute><WeeklyWrapPage /></ProtectedRoute>} />
+      <Route path="/desires"   element={<ProtectedRoute><DesireListPage /></ProtectedRoute>} />
 
       {/* Redirects */}
       <Route path="/" element={<Navigate to="/auth" replace />} />
@@ -97,4 +105,5 @@ export default function App() {
     </BrowserRouter>
   )
 }
+
 
