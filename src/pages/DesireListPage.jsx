@@ -16,7 +16,10 @@ export default function DesireListPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  useEffect(() => { if (user) fetchData() }, [user])
+  useEffect(() => {
+    if (user) fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   async function fetchData() {
     const { data: d } = await supabase.from('desire_list').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
