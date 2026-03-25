@@ -48,21 +48,15 @@ function LoadingScreen() {
       justifyContent: 'center',
       background: 'var(--bg-primary)',
     }}>
-      <div style={{
-        width: 40, height: 40,
-        background: 'linear-gradient(135deg, var(--orange-primary), var(--orange-deep))',
-        borderRadius: 10,
-        animation: 'pulse 1.2s ease infinite',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        color: '#fff',
-        fontSize: '1.1rem',
-      }}>
-        W
-      </div>
+      <img
+        src="/logo.png"
+        alt="Defiant Resources"
+        style={{
+          height: 48,
+          width: 'auto',
+          animation: 'pulse 1.2s ease infinite',
+        }}
+      />
       <style>{`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.7;transform:scale(0.95)} }`}</style>
     </div>
   )
@@ -103,3 +97,4 @@ export default function App() {
     </BrowserRouter>
   )
 }
+
