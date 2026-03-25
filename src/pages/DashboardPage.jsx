@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import { WrapLogo } from '../components/UI'
 
 export default function DashboardPage() {
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
   const [lifeAreas, setLifeAreas] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -41,19 +43,22 @@ export default function DashboardPage() {
       }}>
         <WrapLogo size="md" />
         <nav style={{ display: 'flex', gap: 'var(--space-xl)', alignItems: 'center' }}>
-          {['Annual', 'Monthly', 'Weekly', 'Review'].map(item => (
-            <button key={item} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontFamily: 'var(--font-body)', fontSize: '0.875rem', fontWeight: 500,
-              color: 'var(--text-muted)', transition: 'color var(--transition-fast)',
-              padding: '4px 0',
-            }}
-              onMouseEnter={e => e.target.style.color = 'var(--text-primary)'}
-              onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
-            >
-              {item}
-            </button>
-          ))}
+          {['Annual', 'Monthly', 'Weekly', 'Review'].map((item, i) => {
+            const routes = ['/annual', '/monthly', '/weekly', '/desires']
+            return (
+              <button key={item} onClick={() => navigate(routes[i])} style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-body)', fontSize: '0.875rem', fontWeight: 500,
+                color: 'var(--text-muted)', transition: 'color var(--transition-fast)',
+                padding: '4px 0',
+              }}
+                onMouseEnter={e => e.target.style.color = 'var(--text-primary)'}
+                onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
+              >
+                {item}
+              </button>
+            )
+          })}
         </nav>
         <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
           <div style={{
@@ -110,12 +115,12 @@ export default function DashboardPage() {
           animation: 'fadeUp 0.5s ease forwards', animationDelay: '0.2s', opacity: 0,
         }}>
           {[
-            { label: 'Annual Outcomes', icon: '🗓', desc: 'Set yearly targets', color: 'rgba(253,155,14,0.1)', border: 'rgba(253,155,14,0.2)' },
-            { label: 'Monthly Plan', icon: '📍', desc: currentMonth + ' objectives', color: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)' },
-            { label: 'Weekly WRAP', icon: '⚡', desc: 'This week\'s actions', color: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.2)' },
-            { label: 'Desire List', icon: '✨', desc: 'Future wants & goals', color: 'rgba(244,114,182,0.1)', border: 'rgba(244,114,182,0.2)' },
+            { label: 'Annual Outcomes', icon: '🗓', desc: 'Set yearly targets', color: 'rgba(253,155,14,0.1)', border: 'rgba(253,155,14,0.2)', route: '/annual' },
+            { label: 'Monthly Plan', icon: '📍', desc: currentMonth + ' objectives', color: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)', route: '/monthly' },
+            { label: 'Weekly WRAP', icon: '⚡', desc: 'This week\'s actions', color: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.2)', route: '/weekly' },
+            { label: 'Desire List', icon: '✨', desc: 'Future wants & goals', color: 'rgba(244,114,182,0.1)', border: 'rgba(244,114,182,0.2)', route: '/desires' },
           ].map(card => (
-            <div key={card.label} style={{
+            <div key={card.label} onClick={() => navigate(card.route)} style={{
               background: card.color, border: `1px solid ${card.border}`,
               borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg)',
               cursor: 'pointer', transition: 'all var(--transition-base)',
@@ -148,7 +153,7 @@ export default function DashboardPage() {
               gap: 'var(--space-md)',
             }}>
               {lifeAreas.map(area => (
-                <div key={area.id} style={{
+                <div key={area.id} onClick={() => navigate('/annual')} style={{
                   background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.06)',
                   borderRadius: 'var(--radius-lg)', padding: 'var(--space-lg)',
                   cursor: 'pointer', transition: 'all var(--transition-base)',
