@@ -112,7 +112,7 @@ export default function MonthlyPlanPage() {
       <div style={{ flex: 1, display: 'flex', maxWidth: 1100, width: '100%', margin: '0 auto', padding: 'var(--space-xl)' }}>
         {/* Sidebar */}
         <div style={{ width: 220, flexShrink: 0, marginRight: 'var(--space-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>Life Areas</p>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>Life Arenas</p>
           {lifeAreas.map(area => {
             const count = objectives[area.id]?.length || 0
             const isActive = activeArea === area.id
