@@ -23,7 +23,10 @@ export default function MonthlyPlanPage() {
   const month = now.getMonth() + 1
   const monthName = MONTH_NAMES[month - 1]
 
-  useEffect(() => { if (user) fetchData() }, [user])
+  useEffect(() => {
+    if (user) fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   async function fetchData() {
     const { data: areas } = await supabase
