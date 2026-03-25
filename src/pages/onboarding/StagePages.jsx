@@ -90,6 +90,7 @@ export default function StageComponent({ stage }) {
 
   useEffect(() => {
     setMessages([{ role: 'assistant', content: config.openingMessage }])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage])
 
   async function sendMessage() {
@@ -290,3 +291,4 @@ export default function StageComponent({ stage }) {
 export function DesireStagePage() { return <StageComponent stage="desire" /> }
 export function DisturbanceStagePage() { return <StageComponent stage="disturbance" /> }
 export function DecisionStagePage() { return <StageComponent stage="decision" /> }
+
