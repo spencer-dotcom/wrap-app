@@ -36,7 +36,10 @@ export default function WeeklyWrapPage() {
   const weekNumber = getWeekNumber(now)
   const monthName = MONTH_NAMES[month - 1]
 
-  useEffect(() => { if (user) fetchData() }, [user])
+  useEffect(() => {
+    if (user) fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user])
 
   async function fetchData() {
     const { data: areas } = await supabase
