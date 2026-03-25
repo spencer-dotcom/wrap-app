@@ -135,10 +135,10 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Life Areas grid */}
+        {/* Life Arenas grid */}
         <div style={{ animation: 'fadeUp 0.5s ease forwards', animationDelay: '0.3s', opacity: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-lg)' }}>
-            <h2 style={{ fontSize: '1.2rem' }}>Life Areas</h2>
+            <h2 style={{ fontSize: '1.2rem' }}>Life Arenas</h2>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
               {lifeAreas.length} areas · {currentYear}
             </p>
@@ -213,4 +213,3 @@ export default function DashboardPage() {
     </div>
   )
 }
-
