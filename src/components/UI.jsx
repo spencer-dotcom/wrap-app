@@ -362,36 +362,18 @@ export function TypingIndicator() {
 
 /* ─── Logo ───────────────────────────────────────────────────── */
 export function WrapLogo({ size = 'md' }) {
-  const sizes = { sm: 24, md: 36, lg: 52 }
-  const s = sizes[size]
+  const heights = { sm: 28, md: 38, lg: 52 }
+  const h = heights[size]
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-      <div style={{
-        width: s, height: s,
-        background: 'linear-gradient(135deg, var(--orange-primary), var(--orange-deep))',
-        borderRadius: size === 'lg' ? 14 : 8,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: size === 'lg' ? '1.5rem' : size === 'md' ? '1.1rem' : '0.8rem',
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        color: '#fff',
-        letterSpacing: '-0.02em',
-      }}>
-        W
-      </div>
-      {size !== 'sm' && (
-        <span style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 700,
-          fontSize: size === 'lg' ? '1.5rem' : '1.1rem',
-          letterSpacing: '-0.01em',
-          color: 'var(--text-primary)',
-        }}>
-          WRAP
-        </span>
-      )}
-    </div>
+    <img
+      src="/logo.png"
+      alt="Defiant Resources"
+      style={{
+        height: h,
+        width: 'auto',
+        objectFit: 'contain',
+        display: 'block',
+      }}
+    />
   )
 }
