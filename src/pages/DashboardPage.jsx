@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
-import { Button, WrapLogo } from '../components/UI'
+import { WrapLogo } from '../components/UI'
 
 export default function DashboardPage() {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile } = useAuth()
   const [lifeAreas, setLifeAreas] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (user) fetchData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   async function fetchData() {
@@ -207,3 +208,4 @@ export default function DashboardPage() {
     </div>
   )
 }
+
