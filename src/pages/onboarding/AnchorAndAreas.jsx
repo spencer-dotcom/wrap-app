@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase } from '../../lib/supabase'
 import { Button, Textarea, StepIndicator, WrapLogo } from '../../components/UI'
@@ -23,6 +23,8 @@ export function AnchorGoalPage() {
 
   const { updateProfile } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const isRedo = new URLSearchParams(location.search).get('redo') === 'true'
 
   async function handleContinue() {
     if (!anchorGoal.trim() || saving) return
@@ -31,17 +33,17 @@ export function AnchorGoalPage() {
     await updateProfile({
       anchor_goal: anchorGoal,
       anchor_goal_timeline: `${timeline} years`,
-      onboarding_step: 'life_areas',
+      onboarding_step: isRedo ? 'complete' : 'life_areas',
     })
 
-    navigate('/onboarding/life-areas')
+    navigate(isRedo ? '/dashboard' : '/onboarding/life-areas')
     setSaving(false)
   }
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{
-        padding: 'var(--space-lg) var(--space-xl)',
+        padding: '0.875rem clamp(1rem, 4vw, 1.5rem)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 10,
@@ -54,7 +56,7 @@ export function AnchorGoalPage() {
 
       <div style={{
         flex: 1, maxWidth: 620, width: '100%', margin: '0 auto',
-        padding: 'var(--space-xl)', display: 'flex', flexDirection: 'column',
+        padding: 'clamp(1rem, 4vw, 2rem)', display: 'flex', flexDirection: 'column',
         gap: 'var(--space-xl)', animation: 'fadeUp 0.4s ease forwards',
       }}>
         <div>
@@ -183,7 +185,7 @@ export function LifeAreasSetupPage() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <header style={{
-        padding: 'var(--space-lg) var(--space-xl)',
+        padding: '0.875rem clamp(1rem, 4vw, 1.5rem)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'sticky', top: 0, zIndex: 10,
@@ -196,7 +198,7 @@ export function LifeAreasSetupPage() {
 
       <div style={{
         flex: 1, maxWidth: 620, width: '100%', margin: '0 auto',
-        padding: 'var(--space-xl)', display: 'flex', flexDirection: 'column',
+        padding: 'clamp(1rem, 4vw, 2rem)', display: 'flex', flexDirection: 'column',
         gap: 'var(--space-xl)', animation: 'fadeUp 0.4s ease forwards',
       }}>
         <div>
