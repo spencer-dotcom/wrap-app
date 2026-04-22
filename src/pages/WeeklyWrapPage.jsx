@@ -177,7 +177,7 @@ export default function WeeklyWrapPage() {
       </header>
 
       {/* Phase nav */}
-      <div style={{
+      <div className='phase-tabs' style={{
         display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)',
         background: 'var(--bg-secondary)',
       }}>
@@ -201,7 +201,7 @@ export default function WeeklyWrapPage() {
         ))}
       </div>
 
-      <div style={{ flex: 1, maxWidth: 900, width: '100%', margin: '0 auto', padding: 'var(--space-xl)' }}>
+      <div style={{ flex: 1, maxWidth: 900, width: '100%', margin: '0 auto', padding: 'clamp(1rem, 4vw, 2rem)' }}>
 
         {/* ── REVIEW ── */}
         {phase === 'review' && (
