@@ -119,12 +119,9 @@ export default function AnnualOutcomesPage() {
         </Button>
       </header>
 
-      <div style={{ flex: 1, display: 'flex', maxWidth: 1100, width: '100%', margin: '0 auto', padding: 'var(--space-xl)' }}>
+      <div className='sidebar-layout' style={{ flex: 1, display: 'flex', maxWidth: 1100, width: '100%', margin: '0 auto', padding: 'var(--space-xl)' }}>
         {/* Life area sidebar */}
-        <div style={{
-          width: 220, flexShrink: 0, marginRight: 'var(--space-xl)',
-          display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)',
-        }}>
+        <div className='sidebar-panel' style={{ width: 220, flexShrink: 0, marginRight: 'var(--space-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--space-sm)' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 8 }}>
             Life Arenas
           </p>
