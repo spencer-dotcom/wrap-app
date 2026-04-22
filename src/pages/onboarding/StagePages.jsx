@@ -89,9 +89,35 @@ export default function StageComponent({ stage }) {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Try to restore from localStorage first
+    const saved = localStorage.getItem(`wrap_${stage}_draft`)
+    if (saved) {
+      try {
+        const draft = JSON.parse(saved)
+        if (draft.messages?.length > 1) {
+          setMessages(draft.messages)
+          setSummaryText(draft.summaryText || '')
+          setShowSummary(draft.showSummary || false)
+          if (stage === 'decision') {
+            setStarts(draft.starts || [''])
+            setStops(draft.stops || [''])
+            setDecisionLevel(draft.decisionLevel || '')
+          }
+          return
+        }
+      } catch (e) {}
+    }
     setMessages([{ role: 'assistant', content: config.openingMessage }])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage])
+
+  // Auto-save to localStorage
+  useEffect(() => {
+    if (messages.length === 0) return
+    const draft = { messages, summaryText, showSummary, starts, stops, decisionLevel }
+    localStorage.setItem(`wrap_${stage}_draft`, JSON.stringify(draft))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, summaryText, showSummary, starts, stops, decisionLevel])
 
   async function sendMessage() {
     if (!input.trim() || aiLoading) return
@@ -128,6 +154,7 @@ export default function StageComponent({ stage }) {
       .eq('user_id', user.id)
 
     await updateProfile({ onboarding_step: stage === 'decision' ? 'anchor_goal' : config.nextRoute.split('/').pop() })
+    localStorage.removeItem(`wrap_${stage}_draft`)
     navigate(config.nextRoute)
     setSaving(false)
   }
