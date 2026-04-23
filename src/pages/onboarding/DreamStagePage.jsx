@@ -314,14 +314,31 @@ export default function DreamStagePage() {
     setSaveError('')
 
     try {
-      const { error } = await supabase.from('drift_to_drive').upsert({
+      const payload = {
         user_id: user.id,
         dream_response: messages.filter(m => m.role === 'user').map(m => m.content).join('\n\n'),
         magic_wand_story: editedStory,
         values_identified: valuesIdentified,
-      }, { onConflict: 'user_id' })
+      }
 
-      if (error) {
+      // Try update first (row likely exists for returning users)
+      const { error: updateError, data: updateData } = await supabase
+        .from('drift_to_drive')
+        .update(payload)
+        .eq('user_id', user.id)
+        .select()
+
+      // If no row existed, insert instead
+      if (!updateError && (!updateData || updateData.length === 0)) {
+        const { error: insertError } = await supabase
+          .from('drift_to_drive')
+          .insert(payload)
+        if (insertError) {
+          setSaveError('Something went wrong saving. Please try again.')
+          setSaving(false)
+          return
+        }
+      } else if (updateError) {
         setSaveError('Something went wrong saving. Please try again.')
         setSaving(false)
         return
