@@ -6,6 +6,7 @@ import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../.
 
 const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Arenas']
 const STORAGE_KEY = 'wrap_dream_draft'
+const DRAFT_VERSION = 3 // increment this when the draft format changes
 
 const DREAM_SYSTEM_PROMPT = `You are Spencer Combs, author of Momentum & Mastery and creator of the WRAP life management system. You are guiding someone through the Dream stage of the Drift to Drive framework.
 
@@ -61,13 +62,12 @@ YOUR PROCESS (NLP chunking up technique):
 
 RULES:
 - Ask about ONE element at a time — never list multiple questions
-- Use their EXACT words from the story — the waterfront home, the passive income, the specific details they gave
-- The question is always some version of "by having that, you get a sense of what?"
+- Use their EXACT words from the story
 - Keep responses short — 2-3 sentences max
 - Be warm and affirming when they identify a value — "Yes, that's it exactly."
 - When you have extracted and confirmed 3-5 values through the conversation, end your message with this exact format on its own line:
 VALUES_COMPLETE:[Value1,Value2,Value3]
-Only include that line when you have genuinely confirmed at least 3 values through the elicitation. Not before.`
+Only include that line when you have genuinely confirmed at least 3 values. Not before.`
 
 const OPENING_MESSAGE = `Welcome. Before we build anything, I want you to do something most people never give themselves permission to do — dream without limits.
 
@@ -75,6 +75,91 @@ So let me ask you this: if you woke up tomorrow and everything in your life was 
 
 Don't filter it. Don't edit for practicality. Just describe the life.`
 
+/* ── Onboarding Nav Header ─────────────────────────────────── */
+function OnboardingHeader({ stepIndex, isRedo, profile, user, onSaveAndClose, onSignOut }) {
+  const [showMenu, setShowMenu] = useState(false)
+  const navigate = useNavigate()
+  const firstName = profile?.full_name?.split(' ')[0] || ''
+
+  return (
+    <header style={{
+      padding: '0.875rem clamp(1rem, 4vw, 1.5rem)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      position: 'sticky', top: 0, zIndex: 10,
+      background: 'rgba(33,32,32,0.95)', backdropFilter: 'blur(12px)',
+    }}>
+      <div onClick={() => isRedo && navigate('/dashboard')} style={{ cursor: isRedo ? 'pointer' : 'default' }}>
+        <WrapLogo size="sm" />
+      </div>
+
+      {!isRedo
+        ? <StepIndicator steps={ONBOARDING_STEPS} currentStep={stepIndex} />
+        : <p style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}>Revisiting Your Dream</p>
+      }
+
+      {/* Avatar with dropdown */}
+      <div style={{ position: 'relative' }}>
+        <div onClick={() => setShowMenu(p => !p)} style={{
+          width: 32, height: 32, borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--orange-primary), var(--orange-deep))',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '0.8rem', fontWeight: 700, color: '#fff', cursor: 'pointer',
+        }}>
+          {(firstName[0] || '?').toUpperCase()}
+        </div>
+
+        {showMenu && (
+          <div style={{
+            position: 'absolute', top: 40, right: 0, zIndex: 100,
+            background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 'var(--radius-md)', minWidth: 210,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)', overflow: 'hidden',
+            animation: 'fadeUp 0.2s ease forwards',
+          }}>
+            {/* User info */}
+            <div style={{ padding: '0.875rem 1.125rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                {profile?.full_name || 'Account'}
+              </p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>{user?.email}</p>
+            </div>
+
+            {/* Save & Continue Later */}
+            <button onClick={() => { setShowMenu(false); onSaveAndClose() }} style={{
+              display: 'block', width: '100%', textAlign: 'left',
+              padding: '0.75rem 1.125rem', background: 'none', border: 'none',
+              cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+              color: 'var(--text-secondary)', transition: 'all var(--transition-fast)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+            >
+              💾 Save & Continue Later
+            </button>
+
+            {/* Sign out */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <button onClick={() => { setShowMenu(false); onSignOut() }} style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '0.75rem 1.125rem', background: 'none', border: 'none',
+                cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+                color: '#fca5a5', transition: 'all var(--transition-fast)',
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(252,165,165,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}
+
+/* ── Main Component ─────────────────────────────────────────── */
 export default function DreamStagePage() {
   const [messages, setMessages]                 = useState([])
   const [valuesMessages, setValuesMessages]     = useState([])
@@ -87,22 +172,25 @@ export default function DreamStagePage() {
   const [saving, setSaving]                     = useState(false)
   const [saveError, setSaveError]               = useState('')
   const [resumedFrom, setResumedFrom]           = useState(false)
+  const [saved, setSaved]                       = useState(false)
   const bottomRef = useRef(null)
 
-  const { user, updateProfile } = useAuth()
+  const { user, profile, signOut, updateProfile } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const isRedo = new URLSearchParams(location.search).get('redo') === 'true'
-
   const TRANSITION_PHRASE = "I have everything I need to reflect your dream back to you"
 
-  // Load from localStorage on mount
+  // Load from localStorage — with version check
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       try {
         const draft = JSON.parse(saved)
-        if (draft.messages?.length > 1) {
+        // Version mismatch — discard stale draft
+        if (draft.version !== DRAFT_VERSION) {
+          localStorage.removeItem(STORAGE_KEY)
+        } else if (draft.messages?.length > 1) {
           setMessages(draft.messages)
           setPhase(draft.phase || 'conversation')
           setEditedStory(draft.editedStory || '')
@@ -111,16 +199,19 @@ export default function DreamStagePage() {
           setResumedFrom(true)
           return
         }
-      } catch (e) {}
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY)
+      }
     }
     setMessages([{ role: 'assistant', content: OPENING_MESSAGE }])
   }, [])
 
-  // Auto-save
+  // Auto-save with version
   useEffect(() => {
     if (messages.length === 0) return
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      messages, phase, editedStory, valuesMessages, valuesIdentified
+      version: DRAFT_VERSION,
+      messages, phase, editedStory, valuesMessages, valuesIdentified,
     }))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, phase, editedStory, valuesMessages, valuesIdentified])
@@ -129,6 +220,21 @@ export default function DreamStagePage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, valuesMessages, aiLoading, phase])
+
+  // Save & Continue Later
+  async function handleSaveAndClose() {
+    setSaving(true)
+    // Save current onboarding_step so resume detection works
+    await updateProfile({ onboarding_step: 'dream' })
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => navigate('/dashboard'), 1500)
+  }
+
+  async function handleSignOut() {
+    await signOut()
+    navigate('/auth')
+  }
 
   // ── CONVERSATION ──────────────────────────────────────────────
   async function sendMessage() {
@@ -141,7 +247,6 @@ export default function DreamStagePage() {
 
     const history = newMessages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
     const aiResponse = await getCoachingResponse(DREAM_SYSTEM_PROMPT, input.trim(), history)
-
     setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }])
     setAiLoading(false)
 
@@ -171,9 +276,7 @@ export default function DreamStagePage() {
     setPhase('values')
     setAiLoading(true)
 
-    // Prime the values conversation with the story
     const openingPrompt = `Here is the person's Magic Wand story:\n\n${editedStory}\n\nBegin the values elicitation. Identify the most emotionally vivid element from their story and ask the first chunking-up question.`
-
     const aiResponse = await getCoachingResponse(VALUES_ELICITATION_PROMPT, openingPrompt, [])
     setValuesMessages([{ role: 'assistant', content: aiResponse }])
     setAiLoading(false)
@@ -190,14 +293,12 @@ export default function DreamStagePage() {
     const history = newMessages.slice(0, -1).map(m => ({ role: m.role, content: m.content }))
     const aiResponse = await getCoachingResponse(VALUES_ELICITATION_PROMPT, valuesInput.trim(), history)
 
-    // Check if values are complete
     if (aiResponse.includes('VALUES_COMPLETE:')) {
       const match = aiResponse.match(/VALUES_COMPLETE:\[([^\]]+)\]/)
       if (match) {
         const extracted = match[1].split(',').map(v => v.trim()).filter(Boolean)
         setValuesIdentified(extracted)
       }
-      // Show message without the VALUES_COMPLETE tag
       const cleanResponse = aiResponse.replace(/VALUES_COMPLETE:\[[^\]]+\]/g, '').trim()
       setValuesMessages(prev => [...prev, { role: 'assistant', content: cleanResponse }])
     } else {
@@ -213,7 +314,6 @@ export default function DreamStagePage() {
     setSaveError('')
 
     try {
-      // Use upsert — works whether row exists or not
       const { error } = await supabase.from('drift_to_drive').upsert({
         user_id: user.id,
         dream_response: messages.filter(m => m.role === 'user').map(m => m.content).join('\n\n'),
@@ -228,7 +328,6 @@ export default function DreamStagePage() {
       }
 
       localStorage.removeItem(STORAGE_KEY)
-
       if (isRedo) {
         navigate('/dashboard')
       } else {
@@ -251,26 +350,31 @@ export default function DreamStagePage() {
     setResumedFrom(false)
   }
 
-  // ── RENDER ─────────────────────────────────────────────────────
+  // ── SAVED CONFIRMATION ────────────────────────────────────────
+  if (saved) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem' }}>💾</div>
+        <h2 style={{ textAlign: 'center' }}>Your progress is saved.</h2>
+        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
+          Sign back in anytime and we'll pick up exactly where you left off.
+        </p>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Returning to dashboard…</p>
+      </div>
+    )
+  }
+
+  // ── RENDER ────────────────────────────────────────────────────
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <header style={{
-        padding: '0.875rem clamp(1rem, 4vw, 1.5rem)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(33,32,32,0.95)', backdropFilter: 'blur(12px)',
-      }}>
-        <div onClick={() => navigate(isRedo ? '/dashboard' : '#')} style={{ cursor: isRedo ? 'pointer' : 'default' }}>
-          <WrapLogo size="sm" />
-        </div>
-        {!isRedo
-          ? <StepIndicator steps={ONBOARDING_STEPS} currentStep={0} />
-          : <p style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: 600 }}>Revisiting Your Dream</p>
-        }
-        <div style={{ width: 80 }} />
-      </header>
+      <OnboardingHeader
+        stepIndex={0}
+        isRedo={isRedo}
+        profile={profile}
+        user={user}
+        onSaveAndClose={handleSaveAndClose}
+        onSignOut={handleSignOut}
+      />
 
       <div style={{
         flex: 1, maxWidth: 680, width: '100%', margin: '0 auto',
@@ -443,11 +547,7 @@ export default function DreamStagePage() {
               borderRadius: 'var(--radius-lg)', padding: 'clamp(1rem, 3vw, 1.5rem)',
               marginBottom: '1.25rem',
             }}>
-              <Textarea
-                rows={14}
-                value={editedStory}
-                onChange={e => setEditedStory(e.target.value)}
-              />
+              <Textarea rows={14} value={editedStory} onChange={e => setEditedStory(e.target.value)} />
             </div>
 
             <Button
@@ -494,8 +594,7 @@ export default function DreamStagePage() {
                     }}>S</div>
                   )}
                   <div style={{
-                    maxWidth: '82%',
-                    padding: '0.75rem 1.125rem',
+                    maxWidth: '82%', padding: '0.75rem 1.125rem',
                     borderRadius: msg.role === 'user'
                       ? 'var(--radius-lg) var(--radius-md) var(--radius-sm) var(--radius-lg)'
                       : 'var(--radius-md) var(--radius-lg) var(--radius-lg) var(--radius-sm)',
@@ -510,7 +609,6 @@ export default function DreamStagePage() {
                   </div>
                 </div>
               ))}
-
               {aiLoading && (
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <div style={{
@@ -525,7 +623,7 @@ export default function DreamStagePage() {
               <div ref={bottomRef} />
             </div>
 
-            {/* Extracted values — show when complete */}
+            {/* Extracted values */}
             {valuesIdentified.length >= 3 && (
               <div style={{
                 background: 'rgba(110,231,183,0.08)', border: '1px solid rgba(110,231,183,0.25)',
@@ -538,27 +636,23 @@ export default function DreamStagePage() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {valuesIdentified.map((v, i) => (
                     <span key={i} style={{
-                      padding: '6px 16px',
-                      background: 'rgba(110,231,183,0.12)',
-                      border: '1px solid rgba(110,231,183,0.3)',
-                      borderRadius: 99, fontSize: '0.9rem',
-                      color: '#6ee7b7', fontWeight: 600,
-                    }}>
-                      {v}
-                    </span>
+                      padding: '6px 16px', background: 'rgba(110,231,183,0.12)',
+                      border: '1px solid rgba(110,231,183,0.3)', borderRadius: 99,
+                      fontSize: '0.9rem', color: '#6ee7b7', fontWeight: 600,
+                    }}>{v}</span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Values input — only show if not complete yet */}
-            {valuesIdentified.length < 3 && !aiLoading && valuesMessages.length > 0 && (
+            {/* Input */}
+            {!aiLoading && valuesMessages.length > 0 && (
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 <textarea
                   value={valuesInput}
                   onChange={e => setValuesInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendValuesMessage() } }}
-                  placeholder="Your answer… (Enter to send)"
+                  placeholder={valuesIdentified.length >= 3 ? "Add anything or confirm you're done…" : "Your answer… (Enter to send)"}
                   rows={2}
                   style={{
                     flex: 1, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
@@ -569,53 +663,25 @@ export default function DreamStagePage() {
                   onFocus={e => e.target.style.borderColor = 'var(--accent)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                 />
-                <Button variant="primary" onClick={sendValuesMessage} disabled={!valuesInput.trim() || aiLoading}
-                  style={{ alignSelf: 'flex-end', padding: '0.875rem 1.25rem' }}>
+                <Button
+                  variant={valuesIdentified.length >= 3 ? 'secondary' : 'primary'}
+                  onClick={sendValuesMessage}
+                  disabled={!valuesInput.trim() || aiLoading}
+                  style={{ alignSelf: 'flex-end', padding: '0.875rem 1.25rem' }}
+                >
                   Send
                 </Button>
               </div>
             )}
 
-            {/* Also show input after values complete if they want to continue */}
-            {valuesIdentified.length >= 3 && !aiLoading && (
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <textarea
-                  value={valuesInput}
-                  onChange={e => setValuesInput(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendValuesMessage() } }}
-                  placeholder="Add anything or confirm you're done…"
-                  rows={2}
-                  style={{
-                    flex: 1, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: 'var(--radius-md)', padding: '0.875rem 1rem',
-                    color: 'var(--text-primary)', fontSize: '0.95rem',
-                    fontFamily: 'var(--font-body)', lineHeight: 1.6, resize: 'none', outline: 'none',
-                  }}
-                  onFocus={e => e.target.style.borderColor = 'var(--accent)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-                />
-                <Button variant="secondary" onClick={sendValuesMessage} disabled={!valuesInput.trim() || aiLoading}
-                  style={{ alignSelf: 'flex-end', padding: '0.875rem 1.25rem' }}>
-                  Send
-                </Button>
-              </div>
-            )}
-
-            {/* Error message */}
             {saveError && (
               <p style={{ fontSize: '0.85rem', color: '#fca5a5', textAlign: 'center', marginBottom: '1rem' }}>
                 {saveError}
               </p>
             )}
 
-            {/* Proceed button */}
             {valuesIdentified.length >= 3 && (
-              <Button
-                variant="primary" size="lg" fullWidth
-                disabled={saving}
-                loading={saving}
-                onClick={handleProceed}
-              >
+              <Button variant="primary" size="lg" fullWidth disabled={saving} loading={saving} onClick={handleProceed}>
                 {isRedo ? 'Save & Return to Dashboard →' : 'Move to Desire →'}
               </Button>
             )}
