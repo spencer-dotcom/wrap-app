@@ -5,8 +5,80 @@ import { supabase, getCoachingResponse } from '../../lib/supabase'
 import { Button, Textarea, StepIndicator, TypingIndicator, WrapLogo } from '../../components/UI'
 
 const ONBOARDING_STEPS = ['Dream', 'Desire', 'Disturbance', 'Decision', 'Anchor Goal', 'Life Arenas']
+const DRAFT_VERSION = 2
 
-/* ─── Stage Config ─────────────────────────────────────────────────── */
+/* ── Onboarding Header (shared) ─────────────────────────────── */
+function OnboardingHeader({ stepIndex, profile, user, onSaveAndClose, onSignOut }) {
+  const [showMenu, setShowMenu] = useState(false)
+  const firstName = profile?.full_name?.split(' ')[0] || ''
+
+  return (
+    <header style={{
+      padding: '0.875rem clamp(1rem, 4vw, 1.5rem)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      position: 'sticky', top: 0, zIndex: 10,
+      background: 'rgba(33,32,32,0.95)', backdropFilter: 'blur(12px)',
+    }}>
+      <WrapLogo size="sm" />
+      <StepIndicator steps={ONBOARDING_STEPS} currentStep={stepIndex} />
+
+      <div style={{ position: 'relative' }}>
+        <div onClick={() => setShowMenu(p => !p)} style={{
+          width: 32, height: 32, borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--orange-primary), var(--orange-deep))',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '0.8rem', fontWeight: 700, color: '#fff', cursor: 'pointer',
+        }}>
+          {(firstName[0] || '?').toUpperCase()}
+        </div>
+
+        {showMenu && (
+          <div style={{
+            position: 'absolute', top: 40, right: 0, zIndex: 100,
+            background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 'var(--radius-md)', minWidth: 210,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)', overflow: 'hidden',
+            animation: 'fadeUp 0.2s ease forwards',
+          }}>
+            <div style={{ padding: '0.875rem 1.125rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
+                {profile?.full_name || 'Account'}
+              </p>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', margin: '2px 0 0' }}>{user?.email}</p>
+            </div>
+            <button onClick={() => { setShowMenu(false); onSaveAndClose() }} style={{
+              display: 'block', width: '100%', textAlign: 'left',
+              padding: '0.75rem 1.125rem', background: 'none', border: 'none',
+              cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+              color: 'var(--text-secondary)', transition: 'all var(--transition-fast)',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-card)'; e.currentTarget.style.color = 'var(--text-primary)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+            >
+              💾 Save & Continue Later
+            </button>
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+              <button onClick={() => { setShowMenu(false); onSignOut() }} style={{
+                display: 'block', width: '100%', textAlign: 'left',
+                padding: '0.75rem 1.125rem', background: 'none', border: 'none',
+                cursor: 'pointer', fontFamily: 'var(--font-body)', fontSize: '0.875rem',
+                color: '#fca5a5', transition: 'all var(--transition-fast)',
+              }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(252,165,165,0.08)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'none'}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  )
+}
+
+/* ── Stage Config ─────────────────────────────────────────────── */
 const STAGES = {
   desire: {
     index: 1,
@@ -25,9 +97,9 @@ Keep responses 2-4 sentences. Warm, direct, challenging. One question at a time.
     summaryPlaceholder: 'In a sentence or two, what do you really want and why does it matter to you?',
     savingField: 'desire_response',
     nextRoute: '/onboarding/disturbance',
+    nextStep: 'disturbance',
     nextLabel: 'Move to Disturbance →',
   },
-
   disturbance: {
     index: 2,
     title: 'Disturbance',
@@ -37,19 +109,19 @@ Keep responses 2-4 sentences. Warm, direct, challenging. One question at a time.
 
 Disturbance is the uncomfortable catalyst. It emerges when the gap between current reality and desired future becomes too great to ignore. The goal: help them feel the cost of staying the same.
 
-Reference Mel Robbins: "Frustration is a sign that you're growing." Help them tap into the restlessness. Ask: What's the cost of NOT changing? What are you giving up by staying where you are?
+Help them tap into the restlessness. Ask: What's the cost of NOT changing? What are you giving up by staying where you are?
 
 The two common beliefs that block disturbance: "I can't achieve it" or "I can't achieve it now." Surface these and challenge them.
 
-Keep responses 2-4 sentences. After 2-3 exchanges, move them to the 100 Reasons Why exercise.`,
+Keep responses 2-4 sentences. After 2-3 exchanges, move them to the summary exercise.`,
     openingMessage: `Here's where things get real.\n\nYou've described what you want and why it matters. Now I need you to sit with something uncomfortable for a minute.\n\nWhat's the actual cost — to you, to the people around you, to your future — if nothing changes? What's the price of staying exactly where you are right now?`,
     summaryLabel: 'Your disturbance (condensed)',
     summaryPlaceholder: 'Write 5–10 reasons why this goal MUST happen, why YOU must be the one, and why it must happen NOW.',
     savingField: 'disturbance_response',
     nextRoute: '/onboarding/decision',
+    nextStep: 'decision',
     nextLabel: 'Move to Decision →',
   },
-
   decision: {
     index: 3,
     title: 'Decision',
@@ -61,40 +133,43 @@ Decision is the culmination. Three decision levels: Wish → Hope → Commitment
 
 Help them identify: What needs to START? What needs to STOP? And what level are they operating at — wish, hope, or commitment?
 
-Challenge them to step into commitment. "Ambition without implementation is a ridiculous delusion." The decision must be backed by a Start/Stop list.
+Challenge them to step into commitment. The decision must be backed by a Start/Stop list.
 
 Keep responses 2-4 sentences. After the exchange, move them to the Start/Stop exercise.`,
     openingMessage: `Last stage.\n\nEverything we've done — the dream, the desire, the disturbance — it all culminates here. In a decision.\n\nNot a wish. Not "I hope this works out." A true commitment is characterized by what you do, not what you say.\n\nSo let me ask: at what level are you deciding right now — wishing, hoping, or committing? And what's the difference for you between those three?`,
     savingField: 'decision_response',
     nextRoute: '/onboarding/anchor-goal',
+    nextStep: 'anchor_goal',
     nextLabel: 'Set My Anchor Goal →',
     hasStartStop: true,
   },
 }
 
-/* ─── Shared Stage Component ─────────────────────────────────────── */
+/* ── Shared Stage Component ───────────────────────────────────── */
 export default function StageComponent({ stage }) {
   const config = STAGES[stage]
-  const [messages, setMessages] = useState([])
-  const [input, setInput] = useState('')
-  const [aiLoading, setAiLoading] = useState(false)
+  const storageKey = `wrap_${stage}_draft`
+
+  const [messages, setMessages]     = useState([])
+  const [input, setInput]           = useState('')
+  const [aiLoading, setAiLoading]   = useState(false)
   const [summaryText, setSummaryText] = useState('')
   const [showSummary, setShowSummary] = useState(false)
-  const [starts, setStarts] = useState([''])
-  const [stops, setStops] = useState([''])
+  const [starts, setStarts]         = useState([''])
+  const [stops, setStops]           = useState([''])
   const [decisionLevel, setDecisionLevel] = useState('')
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving]         = useState(false)
+  const [saved, setSaved]           = useState(false)
 
-  const { user, updateProfile } = useAuth()
+  const { user, profile, signOut, updateProfile } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    // Try to restore from localStorage first
-    const saved = localStorage.getItem(`wrap_${stage}_draft`)
-    if (saved) {
+    const savedDraft = localStorage.getItem(storageKey)
+    if (savedDraft) {
       try {
-        const draft = JSON.parse(saved)
-        if (draft.messages?.length > 1) {
+        const draft = JSON.parse(savedDraft)
+        if (draft.version === DRAFT_VERSION && draft.messages?.length > 1) {
           setMessages(draft.messages)
           setSummaryText(draft.summaryText || '')
           setShowSummary(draft.showSummary || false)
@@ -106,18 +181,31 @@ export default function StageComponent({ stage }) {
           return
         }
       } catch (e) {}
+      localStorage.removeItem(storageKey)
     }
     setMessages([{ role: 'assistant', content: config.openingMessage }])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage])
 
-  // Auto-save to localStorage
   useEffect(() => {
     if (messages.length === 0) return
-    const draft = { messages, summaryText, showSummary, starts, stops, decisionLevel }
-    localStorage.setItem(`wrap_${stage}_draft`, JSON.stringify(draft))
+    localStorage.setItem(storageKey, JSON.stringify({
+      version: DRAFT_VERSION,
+      messages, summaryText, showSummary, starts, stops, decisionLevel,
+    }))
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages, summaryText, showSummary, starts, stops, decisionLevel])
+
+  async function handleSaveAndClose() {
+    await updateProfile({ onboarding_step: stage })
+    setSaved(true)
+    setTimeout(() => navigate('/dashboard'), 1500)
+  }
+
+  async function handleSignOut() {
+    await signOut()
+    navigate('/auth')
+  }
 
   async function sendMessage() {
     if (!input.trim() || aiLoading) return
@@ -149,37 +237,44 @@ export default function StageComponent({ stage }) {
       updateData.decision_level = decisionLevel
     }
 
-    await supabase.from('drift_to_drive')
-      .update(updateData)
-      .eq('user_id', user.id)
-
-    await updateProfile({ onboarding_step: stage === 'decision' ? 'anchor_goal' : config.nextRoute.split('/').pop() })
-    localStorage.removeItem(`wrap_${stage}_draft`)
-    navigate(config.nextRoute)
-    setSaving(false)
+    try {
+      await supabase.from('drift_to_drive').update(updateData).eq('user_id', user.id)
+      localStorage.removeItem(storageKey)
+      await updateProfile({ onboarding_step: config.nextStep })
+      navigate(config.nextRoute)
+    } catch (e) {
+      setSaving(false)
+    }
   }
 
   const canProceed = stage === 'decision'
     ? starts.some(s => s.trim()) && stops.some(s => s.trim()) && decisionLevel
     : summaryText.trim().length > 20
 
+  if (saved) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem' }}>💾</div>
+        <h2 style={{ textAlign: 'center' }}>Your progress is saved.</h2>
+        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Sign back in anytime and we'll pick up exactly where you left off.</p>
+        <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Returning to dashboard…</p>
+      </div>
+    )
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <header style={{
-        padding: 'var(--space-lg) var(--space-xl)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 10,
-        background: 'rgba(33,32,32,0.95)', backdropFilter: 'blur(12px)',
-      }}>
-        <WrapLogo size="sm" />
-        <StepIndicator steps={ONBOARDING_STEPS} currentStep={config.index} />
-        <div style={{ width: 80 }} />
-      </header>
+      <OnboardingHeader
+        stepIndex={config.index}
+        profile={profile}
+        user={user}
+        onSaveAndClose={handleSaveAndClose}
+        onSignOut={handleSignOut}
+      />
 
       <div style={{
         flex: 1, maxWidth: 680, width: '100%', margin: '0 auto',
-        padding: 'var(--space-xl)', display: 'flex', flexDirection: 'column', gap: 'var(--space-xl)',
+        padding: 'clamp(1rem, 4vw, 1.5rem)', display: 'flex', flexDirection: 'column', gap: '1.25rem',
       }}>
         <div style={{ animation: 'fadeUp 0.4s ease forwards' }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 8 }}>
@@ -190,7 +285,7 @@ export default function StageComponent({ stage }) {
         </div>
 
         {/* Conversation */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {messages.map((msg, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', animation: 'fadeUp 0.3s ease forwards' }}>
               {msg.role === 'assistant' && (
@@ -201,7 +296,7 @@ export default function StageComponent({ stage }) {
                 borderRadius: msg.role === 'user' ? 'var(--radius-lg) var(--radius-md) var(--radius-sm) var(--radius-lg)' : 'var(--radius-md) var(--radius-lg) var(--radius-lg) var(--radius-sm)',
                 background: msg.role === 'user' ? 'linear-gradient(135deg, var(--orange-primary), var(--orange-deep))' : 'var(--bg-card)',
                 color: msg.role === 'user' ? '#fff' : 'var(--text-primary)',
-                fontSize: '0.95rem', lineHeight: 1.65, whiteSpace: 'pre-wrap',
+                fontSize: 'clamp(0.875rem, 2.5vw, 0.95rem)', lineHeight: 1.65, whiteSpace: 'pre-wrap',
               }}>
                 {msg.content}
               </div>
@@ -215,12 +310,19 @@ export default function StageComponent({ stage }) {
           )}
         </div>
 
-        {/* Input */}
+        {/* Message input */}
         {!showSummary && (
-          <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-            <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
-              placeholder="Your response… (Enter to send)" rows={3}
-              style={{ flex: 1, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 'var(--radius-md)', padding: '0.875rem 1rem', color: 'var(--text-primary)', fontSize: '0.95rem', fontFamily: 'var(--font-body)', lineHeight: 1.6, resize: 'none', outline: 'none' }}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <textarea value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage() } }}
+              placeholder="Your response… (Enter to send)"
+              rows={3}
+              style={{
+                flex: 1, background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 'var(--radius-md)', padding: '0.875rem 1rem',
+                color: 'var(--text-primary)', fontSize: 'clamp(0.875rem, 2.5vw, 0.95rem)',
+                fontFamily: 'var(--font-body)', lineHeight: 1.6, resize: 'none', outline: 'none',
+              }}
               onFocus={e => e.target.style.borderColor = 'var(--accent)'}
               onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
             />
@@ -231,23 +333,21 @@ export default function StageComponent({ stage }) {
         {/* Summary / exercises */}
         {showSummary && (
           <div style={{ animation: 'fadeUp 0.4s ease forwards' }}>
-            {/* Standard summary textarea */}
             {!config.hasStartStop && (
               <div style={{ background: 'rgba(253,155,14,0.06)', border: '1px solid rgba(253,155,14,0.2)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)', marginBottom: 'var(--space-lg)' }}>
                 <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 10 }}>Capture it</p>
-                <h3 style={{ marginBottom: 'var(--space-md)' }}>{config.summaryLabel}</h3>
+                <h3 style={{ marginBottom: '0.875rem' }}>{config.summaryLabel}</h3>
                 <Textarea rows={5} placeholder={config.summaryPlaceholder} value={summaryText} onChange={e => setSummaryText(e.target.value)} />
               </div>
             )}
 
-            {/* Decision Start/Stop */}
             {config.hasStartStop && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', marginBottom: 'var(--space-lg)' }}>
                 {/* Decision level */}
                 <div style={{ background: 'rgba(253,155,14,0.06)', border: '1px solid rgba(253,155,14,0.2)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-xl)' }}>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 10 }}>Your commitment level</p>
                   <h3 style={{ marginBottom: 'var(--space-lg)' }}>How are you deciding?</h3>
-                  <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                     {['wish', 'hope', 'commitment'].map(level => (
                       <button key={level} onClick={() => setDecisionLevel(level)} style={{
                         flex: 1, minWidth: 100, padding: '0.75rem 1rem', borderRadius: 'var(--radius-md)',
@@ -255,18 +355,12 @@ export default function StageComponent({ stage }) {
                         background: decisionLevel === level ? 'rgba(253,155,14,0.1)' : 'var(--bg-card)',
                         color: decisionLevel === level ? 'var(--accent)' : 'var(--text-secondary)',
                         fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '0.875rem',
-                        cursor: 'pointer', transition: 'all var(--transition-base)',
-                        textTransform: 'capitalize',
+                        cursor: 'pointer', transition: 'all var(--transition-base)', textTransform: 'capitalize',
                       }}>
                         {level === 'commitment' ? '🔥 ' : level === 'hope' ? '🌤 ' : '💭 '}{level}
                       </button>
                     ))}
                   </div>
-                  {decisionLevel === 'commitment' && (
-                    <p style={{ fontSize: '0.8rem', color: 'var(--accent)', marginTop: 10, fontStyle: 'italic' }}>
-                      That's the only level that moves you forward. Let's make it real.
-                    </p>
-                  )}
                 </div>
 
                 {/* Start list */}
@@ -309,12 +403,13 @@ export default function StageComponent({ stage }) {
           </div>
         )}
       </div>
-      <style>{`@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }`}</style>
+      <style>{`
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:none; } }
+      `}</style>
     </div>
   )
 }
 
-// Named exports for each stage
-export function DesireStagePage() { return <StageComponent stage="desire" /> }
+export function DesireStagePage()      { return <StageComponent stage="desire" /> }
 export function DisturbanceStagePage() { return <StageComponent stage="disturbance" /> }
-export function DecisionStagePage() { return <StageComponent stage="decision" /> }
+export function DecisionStagePage()    { return <StageComponent stage="decision" /> }
