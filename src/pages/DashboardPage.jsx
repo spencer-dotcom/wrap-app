@@ -149,6 +149,58 @@ export default function DashboardPage() {
       {/* Main */}
       <main style={{ flex: 1, maxWidth: 1100, width: '100%', margin: '0 auto', padding: 'clamp(1.25rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem)' }}>
 
+        {/* Unfinished onboarding banner */}
+        {profile && !profile.onboarding_completed && (
+          <div
+            onClick={() => {
+              const RESUME_ROUTES = {
+                'entry_routing': '/onboarding/start',
+                'dream':         '/onboarding/dream',
+                'desire':        '/onboarding/desire',
+                'disturbance':   '/onboarding/disturbance',
+                'decision':      '/onboarding/decision',
+                'anchor_goal':   '/onboarding/anchor-goal',
+                'life_areas':    '/onboarding/life-areas',
+              }
+              const route = RESUME_ROUTES[profile.onboarding_step] || '/onboarding'
+              navigate(route)
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              gap: '1rem', flexWrap: 'wrap',
+              background: 'linear-gradient(135deg, rgba(253,155,14,0.15), rgba(238,96,11,0.1))',
+              border: '1.5px solid rgba(253,155,14,0.4)',
+              borderRadius: 'var(--radius-lg)',
+              padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1.25rem, 4vw, 1.75rem)',
+              marginBottom: 'clamp(1.25rem, 3vw, 2rem)',
+              cursor: 'pointer',
+              transition: 'all var(--transition-base)',
+              animation: 'fadeUp 0.4s ease forwards',
+            }}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+            onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(253,155,14,0.4)'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+              <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>🔥</span>
+              <div>
+                <p style={{ fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 3px', fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
+                  Your Drift to Drive process is not finished.
+                </p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  Complete your setup to unlock the full WRAP system.
+                </p>
+              </div>
+            </div>
+            <span style={{
+              fontWeight: 700, color: 'var(--accent)',
+              fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+              whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              Pick up where you left off →
+            </span>
+          </div>
+        )}
+
         {/* Welcome */}
         <div style={{ marginBottom: 'clamp(1.25rem, 3vw, 2rem)', animation: 'fadeUp 0.4s ease forwards' }}>
           <h1 style={{ fontSize: 'clamp(1.6rem, 5vw, 2.5rem)', marginBottom: 6 }}>
